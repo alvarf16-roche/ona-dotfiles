@@ -14,11 +14,12 @@
     pkgs.gitui
     pkgs.tmux
     pkgs.nodejs
+    pkgs.jj
   ];
 
   # Install from npm's latest dist-tag rather than the version pinned in nixpkgs.
   home.activation.installPiCodingAgent = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    ${pkgs.nodejs}/bin/npm install --global --prefix "$HOME/.local" --no-audit --no-fund @earendil-works/pi-coding-agent@latest
+    PATH="${pkgs.nodejs}/bin:$PATH" npm install --global --prefix "$HOME/.local" --no-audit --no-fund @earendil-works/pi-coding-agent@latest
   '';
 
   home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
