@@ -16,6 +16,8 @@
     pkgs.nodejs
     pkgs.jujutsu
     pkgs.gh
+    # Provides cargo, rustc, etc. as proxies to rustup-managed toolchains.
+    pkgs.rustup
   ];
 
   # Install from npm's latest dist-tag rather than the version pinned in nixpkgs.
@@ -23,7 +25,18 @@
     PATH="${pkgs.nodejs}/bin:$PATH" npm install --global --prefix "$HOME/.local" --no-audit --no-fund @earendil-works/pi-coding-agent@latest
   '';
 
-  home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
+  # Install the stable toolchain unless a default one is already configured.
+  home.activation.installRustToolchain = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if ! ${pkgs.rustup}/bin/rustup default >/dev/null 2>&1; then
+      ${pkgs.rustup}/bin/rustup default stable
+    fi
+  '';
+
+  home.sessionPath = [
+    "${config.home.homeDirectory}/.local/bin"
+    # `cargo install` target.
+    "${config.home.homeDirectory}/.cargo/bin"
+  ];
 
   home.sessionVariables = {
     EDITOR = "nvim";

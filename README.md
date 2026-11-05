@@ -10,6 +10,8 @@ Ona clones this repo to `~/dotfiles` and runs `install.sh`, which:
    - fish + starship prompt, auto-attached to tmux session `main` in interactive terminals, `gits` → `git status`
    - fd, ripgrep, gitui, tmux, jujutsu, GitHub CLI (`gh`), and Node.js
    - pi-coding-agent, installed from npm's latest release on each Home Manager activation
+   - rustup, with the stable Rust toolchain (`cargo`, `rustc`, `clippy`, `rustfmt`) installed as
+     the default on activation unless a default toolchain is already configured
    - `ghctx`, a fish function to switch between GitHub accounts (see below)
 3. Starts fish from interactive bash and zsh sessions (`exec fish` in `~/.bashrc` and
    `${ZDOTDIR:-$HOME}/.zshrc`). The login shell stays bash because the Ona SSH gateway
