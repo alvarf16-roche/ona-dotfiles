@@ -14,7 +14,7 @@
     pkgs.gitui
     pkgs.tmux
     pkgs.nodejs
-    pkgs.jj
+    pkgs.jujutsu
   ];
 
   # Install from npm's latest dist-tag rather than the version pinned in nixpkgs.
