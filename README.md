@@ -8,13 +8,29 @@ Ona clones this repo to `~/dotfiles` and runs `install.sh`, which:
 2. Applies the home-manager configuration in `home.nix`:
    - [nixvim-cfg](https://github.com/javier-varez/nixvim-cfg) (default package)
    - fish + starship prompt, auto-attached to tmux session `main` in interactive terminals, `gits` → `git status`
-   - fd, ripgrep, gitui, tmux, and Node.js
+   - fd, ripgrep, gitui, tmux, jujutsu, GitHub CLI (`gh`), and Node.js
    - pi-coding-agent, installed from npm's latest release on each Home Manager activation
+   - `ghctx`, a fish function to switch between GitHub accounts (see below)
 3. Starts fish from interactive bash and zsh sessions (`exec fish` in `~/.bashrc` and
    `${ZDOTDIR:-$HOME}/.zshrc`). The login shell stays bash because the Ona SSH gateway
    runs bash syntax through it.
 
 Logs are written to `~/.dotfiles-install.log`.
+
+## GitHub contexts
+
+Provide one token per account as `GITHUB_TOKEN_OSS` and `GITHUB_TOKEN_ENTERPRISE`, then:
+
+```sh
+ghctx             # print the active context: oss, enterprise, none, or unknown
+ghctx oss         # set GITHUB_TOKEN from GITHUB_TOKEN_OSS
+ghctx enterprise  # set GITHUB_TOKEN from GITHUB_TOKEN_ENTERPRISE
+```
+
+Interactive fish shells start in a context: an inherited `GITHUB_TOKEN` that matches one is
+kept, otherwise `oss` is used, falling back to `enterprise` if `GITHUB_TOKEN_OSS` is unset.
+A switch only affects the current shell; other tmux panes keep their own `GITHUB_TOKEN`.
+`GH_TOKEN`, if set, takes precedence over `GITHUB_TOKEN` in `gh`.
 
 ## Updating
 
