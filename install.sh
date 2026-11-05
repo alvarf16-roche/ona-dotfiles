@@ -29,8 +29,10 @@ source_nix() {
     "$HOME/.nix-profile/etc/profile.d/nix.sh" \
     /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh; do
     if [ -e "$f" ]; then
+      set +u
       # shellcheck disable=SC1090
-      set +u; . "$f"; set -u
+      . "$f"
+      set -u
       return 0
     fi
   done
@@ -75,17 +77,57 @@ EOF
   fi
 }
 
-# Unauthenticated GitHub API calls (used to fetch `github:` flake inputs) are
-# limited to 60/hour per IP, which shared egress IPs exhaust quickly. Pass
-# $GITHUB_TOKEN to nix for this run if set; it is not persisted.
+# Public `github:` inputs still fail with HTTP 401 if nix sends a rejected
+# token. Prefer the OSS account over an inherited enterprise/expired token,
+# and check access to a required public repository before passing it to nix.
+# Tokens are only used for this run; do not persist them or change gh's context.
 configure_github_token() {
-  if [ -n "${GITHUB_TOKEN:-}" ]; then
-    log "using GITHUB_TOKEN for nix fetches"
-    export NIX_CONFIG="access-tokens = github.com=${GITHUB_TOKEN}${NIX_CONFIG:+
-$NIX_CONFIG}"
-  else
-    log "GITHUB_TOKEN not set; github: fetches may hit the API rate limit"
+  if [ -z "${GITHUB_TOKEN_OSS:-}" ] && [ -z "${GITHUB_TOKEN:-}" ]; then
+    log "GitHub tokens not set; using nix's existing authentication settings"
+    return
   fi
+
+  local token_var token status github_token=""
+  for token_var in GITHUB_TOKEN_OSS GITHUB_TOKEN; do
+    token="${!token_var:-}"
+    [ -n "$token" ] || continue
+
+    # Read the header from stdin so the token is not exposed in curl's argv.
+    if ! status="$(printf 'Authorization: Bearer %s\n' "$token" | \
+      curl --proto '=https' --tlsv1.2 --silent --show-error --max-time 15 \
+        --header @- --output /dev/null --write-out '%{http_code}' \
+        https://api.github.com/repos/javier-varez/nixvim-cfg)"; then
+      log "could not check $token_var; skipping it"
+      continue
+    fi
+    if [ "$status" = 200 ]; then
+      log "using $token_var for nix fetches"
+      github_token="$token"
+      break
+    fi
+    log "$token_var rejected for public GitHub access (HTTP $status); ignoring it"
+  done
+
+  if [ -z "$github_token" ]; then
+    log "no usable GitHub token; fetching public inputs without authentication (API rate limits may apply)"
+  fi
+
+  # Preserve credentials for other hosts, but replace GitHub credentials,
+  # including path-specific ones that would override the selected token.
+  local settings entry
+  local -a existing_tokens=() access_tokens=()
+  settings="$(nix config show access-tokens)"
+  read -r -a existing_tokens <<<"$settings"
+  [ -z "$github_token" ] || access_tokens+=("github.com=$github_token")
+  for entry in "${existing_tokens[@]}"; do
+    case "$entry" in
+      github.com=*|github.com/*) ;;
+      *) access_tokens+=("$entry") ;;
+    esac
+  done
+  # Append, rather than prepend, so inherited NIX_CONFIG cannot override this.
+  export NIX_CONFIG="${NIX_CONFIG:+$NIX_CONFIG
+}access-tokens = ${access_tokens[*]}"
 }
 
 apply_home_manager() {

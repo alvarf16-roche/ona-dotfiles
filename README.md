@@ -34,6 +34,28 @@ kept, otherwise `oss` is used, falling back to `enterprise` if `GITHUB_TOKEN_OSS
 A switch only affects the current shell; other tmux panes keep their own `GITHUB_TOKEN`.
 `GH_TOKEN`, if set, takes precedence over `GITHUB_TOKEN` in `gh`.
 
+## GitHub authentication during installation
+
+The installer prefers `GITHUB_TOKEN_OSS`, then tries `GITHUB_TOKEN`. It checks each token's
+access to the public `nixvim-cfg` repository before forwarding it to Nix. An expired token
+or a token for a different GitHub host can otherwise make even public downloads fail with
+HTTP 401; this is an authentication failure, not an API rate limit or binary-cache issue.
+
+If neither token works (or the check fails), installation continues with unauthenticated
+public GitHub fetches, which may be rate-limited on shared IPs. When either variable is
+provided, the installer replaces Nix's GitHub credentials for this run while preserving
+credentials for other hosts. With neither variable set, existing Nix authentication
+settings are left alone. Tokens are not written to disk, and the shell's GitHub context
+is not changed.
+
+## Tests
+
+Run the installer regression tests without installing packages or contacting GitHub:
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
 ## Updating
 
 ```sh
