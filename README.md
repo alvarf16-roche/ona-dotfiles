@@ -10,6 +10,8 @@ Ona clones this repo to `~/dotfiles` and runs `install.sh`, which:
    - fish + starship prompt, `gits` → `git status`
    - fd, ripgrep, gitui, tmux, jujutsu, GitHub CLI (`gh`), and Node.js
    - pi-coding-agent, installed from npm's latest release on each Home Manager activation
+   - `claude` and `pi` aliases that run through `ona environment keep-alive --`, keeping the
+     environment alive while they run
    - rustup, with the stable Rust toolchain (`cargo`, `rustc`, `clippy`, `rustfmt`) installed as
      the default on activation unless a default toolchain is already configured
    - `ghctx`, a fish function to switch between GitHub accounts (see below)

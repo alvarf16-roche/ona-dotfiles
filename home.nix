@@ -44,6 +44,8 @@
   };
 
   home.shellAliases = {
+    claude = "ona environment keep-alive -- claude";
+    pi = "ona environment keep-alive -- pi";
     gits = "git status";
     gitl = "git log";
     vi = "nvim";
