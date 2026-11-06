@@ -32,6 +32,26 @@
     fi
   '';
 
+  # Bootstrap binstall from Nix, then prefer release binaries for Cargo tools.
+  # Binstall falls back to `cargo install --locked` when no binary is available.
+  home.activation.installCargoTools = lib.hm.dag.entryAfter [ "installRustToolchain" ] ''
+    PATH="${pkgs.rustup}/bin:$HOME/.cargo/bin:$PATH" \
+      ${pkgs.cargo-binstall}/bin/cargo-binstall --no-confirm --locked \
+        cargo-binstall \
+        cargo-edit \
+        cargo-nextest \
+        cargo-watch \
+        cargo-udeps \
+        cargo-mutants \
+        cargo-llvm-cov \
+        cargo-deny \
+        cargo-criterion \
+        hyperfine \
+        cargo-expand \
+        cargo-semver-checks \
+        knope
+  '';
+
   home.sessionPath = [
     "${config.home.homeDirectory}/.local/bin"
     # `cargo install` target.

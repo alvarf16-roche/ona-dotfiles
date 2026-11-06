@@ -14,6 +14,12 @@ Ona clones this repo to `~/dotfiles` and runs `install.sh`, which:
      environment alive while they run
    - rustup, with the stable Rust toolchain (`cargo`, `rustc`, `clippy`, `rustfmt`) installed as
      the default on activation unless a default toolchain is already configured
+   - cargo-binstall, cargo-edit, cargo-nextest, cargo-watch, cargo-udeps, cargo-mutants,
+     cargo-llvm-cov, cargo-deny, cargo-criterion, hyperfine, cargo-expand,
+     cargo-semver-checks, and knope, installed with `cargo-binstall` on activation
+     (prebuilt binaries when available, otherwise locked source builds). Nix bootstraps
+     `cargo-binstall`; `cargo-criterion` is the CLI runner for the Criterion benchmarking
+     library, which is added to individual projects rather than installed globally.
    - `ghctx`, a fish function to switch between GitHub accounts (see below)
 3. Starts fish from interactive bash and zsh sessions (`exec fish` in `~/.bashrc` and
    `${ZDOTDIR:-$HOME}/.zshrc`). The login shell stays bash because the Ona SSH gateway
