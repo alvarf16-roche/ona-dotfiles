@@ -62,10 +62,6 @@
           ghctx $ctx >/dev/null 2>&1; and break
         end
       end
-
-      if status is-interactive; and isatty stdin; and not set -q TMUX; and not set -q VSCODE_RESOLVING_ENVIRONMENT
-        exec tmux new-session -A -s main
-      end
     '';
 
     # A function rather than a script so it can set GITHUB_TOKEN in the

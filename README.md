@@ -7,7 +7,7 @@ Ona clones this repo to `~/dotfiles` and runs `install.sh`, which:
    `nix-community` cachix cache added as a substituter.
 2. Applies the home-manager configuration in `home.nix`:
    - [nixvim-cfg](https://github.com/javier-varez/nixvim-cfg) (default package)
-   - fish + starship prompt, auto-attached to tmux session `main` in interactive terminals, `gits` → `git status`
+   - fish + starship prompt, `gits` → `git status`
    - fd, ripgrep, gitui, tmux, jujutsu, GitHub CLI (`gh`), and Node.js
    - pi-coding-agent, installed from npm's latest release on each Home Manager activation
    - rustup, with the stable Rust toolchain (`cargo`, `rustc`, `clippy`, `rustfmt`) installed as
@@ -31,7 +31,7 @@ ghctx enterprise  # set GITHUB_TOKEN from GITHUB_TOKEN_ENTERPRISE
 
 Interactive fish shells start in a context: an inherited `GITHUB_TOKEN` that matches one is
 kept, otherwise `oss` is used, falling back to `enterprise` if `GITHUB_TOKEN_OSS` is unset.
-A switch only affects the current shell; other tmux panes keep their own `GITHUB_TOKEN`.
+A switch only affects the current shell; other sessions keep their own `GITHUB_TOKEN`.
 `GH_TOKEN`, if set, takes precedence over `GITHUB_TOKEN` in `gh`.
 
 ## GitHub authentication during installation
